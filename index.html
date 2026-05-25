@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>京东购物车链接编辑器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .product-list {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .product-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+        }
+
+        .product-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+
+        .product-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .product-index {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .product-inputs {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .product-inputs input {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .product-inputs input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-product-id {
+            flex: 2;
+            min-width: 200px;
+        }
+
+        .input-quantity {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .btn-remove {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .btn-remove:hover {
+            background: #ff3838;
+            transform: scale(1.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-start-server {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-start-server:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-start-server:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .result-link {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #555;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 10px;
+        }
+
+        .copy-btn {
+            background: #11998e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #0d8a7e;
+        }
+
+        .copy-btn.copied {
+            background: #38ef7d;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            color: #1976d2;
+            font-size: 14px;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .server-status {
+            background: #f8f9fa;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .server-status.offline {
+            border-color: #ff4757;
+        }
+
+        .server-status.online {
+            border-color: #38ef7d;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff4757;
+        }
+
+        .status-dot.online {
+            background: #38ef7d;
+        }
+
+        .server-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .signature-info {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #856404;
+        }
+
+        .expanded-info {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛒 京东购物车链接编辑器</h1>
+        <p class="subtitle">支持短链接一键展开，自动解析商品清单</p>
+
+        <div id="serverStatus" class="server-status offline">
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">服务未启动</span>
+            </div>
+            <div class="server-info">
+                <button class="btn btn-start-server" id="startServerBtn" onclick="startServer()">🚀 启动展开服务</button>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <p><strong>✨ 一键使用：</strong></p>
+            <p>1. 点击"启动展开服务"按钮</p>
+            <p>2. 直接粘贴京东链接（支持短链接和完整链接）</p>
+            <p>3. 点击"一键解析并展开"按钮，自动完成所有操作</p>
+        </div>
+
+        <div class="section">
+            <label for="shareLink">📎 粘贴京东购物车链接（支持短链接和完整链接）：</label>
+            <textarea id="shareLink" placeholder="支持以下格式：
+• 短链接：https://3.cn/-2P2N05U
+• 完整链接：https://v.m.jd.com/landpage/cartShare.action?t=...&p=..."></textarea>
+            
+            <div id="expandedUrlBox" class="expanded-info" style="display: none;">
+                <strong>📢 已展开的完整链接：</strong>
+                <div id="expandedUrl" style="word-break: break-all; margin-top: 5px;"></div>
+            </div>
+
+            <div id="statusArea"></div>
+            
+            <div class="button-group" style="margin-top: 10px;">
+                <button class="btn btn-success" id="parseBtn" onclick="parseLink()">🚀 一键解析并展开</button>
+                <button class="btn btn-secondary" onclick="clearAll()">🗑️ 清空</button>
+            </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <div class="section" id="editorSection" style="display: none;">
+            <label>📦 商品清单：</label>
+            <div class="product-list" id="productList"></div>
+            <div class="button-group" style="margin-top: 15px;">
+                <button class="btn btn-secondary" onclick="addProduct()">➕ 添加商品</button>
+                <button class="btn btn-success" onclick="generateLink()">🔗 生成新链接</button>
+            </div>
+            <div class="signature-info">
+                ⚠️ <strong>注意：</strong>签名部分（@@后面的值）会被保留，但修改商品后签名可能失效。如遇问题，请重新从京东分享获取链接。
+            </div>
+        </div>
+
+        <div class="section" id="resultSection" style="display: none;">
+            <div class="result-box">
+                <div class="result-label">✅ 新生成的分享链接：</div>
+                <div class="result-link" id="resultLink"></div>
+                <button class="copy-btn" onclick="copyLink()">📋 复制链接</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentData = {
+            baseUrl: '',
+            params: {},
+            products: [],
+            signature: ''
+        };
+
+        let serverRunning = false;
+
+        function updateServerStatus(running) {
+            serverRunning = running;
+            const statusEl = document.getElementById('serverStatus');
+            const dotEl = document.getElementById('statusDot');
+            const textEl = document.getElementById('statusText');
+            const btnEl = document.getElementById('startServerBtn');
+            
+            if (running) {
+                statusEl.classList.remove('offline');
+                statusEl.classList.add('online');
+                dotEl.classList.add('online');
+                textEl.textContent = '服务运行中 ✓';
+                btnEl.textContent = '✓ 服务已启动';
+                btnEl.disabled = true;
+            } else {
+                statusEl.classList.remove('online');
+                statusEl.classList.add('offline');
+                dotEl.classList.remove('online');
+                textEl.textContent = '服务未启动';
+                btnEl.textContent = '🚀 启动展开服务';
+                btnEl.disabled = false;
+            }
+        }
+
+        async function startServer() {
+            const btn = document.getElementById('startServerBtn');
+            btn.innerHTML = '<span class="loading"></span>启动中...';
+            btn.disabled = true;
+            
+            try {
+                // 使用 PowerShell 启动 Node.js 服务
+                const { hostname } = window.location;
+                const port = 3847;
+                const wsUrl = `ws://localhost:${port}`;
+                
+                // 先尝试连接看是否已启动
+                try {
+                    const testResponse = await fetch(`http://localhost:${port}/health`);
+                    if (testResponse.ok) {
+                        updateServerStatus(true);
+                        return;
+                    }
+                } catch (e) {
+                    // 服务未启动，继续
+                }
+                
+                // 检查是否需要手动启动
+                showAlert('请手动运行 expand-server.js 脚本', 'info');
+                showStatus('提示：运行命令: node expand-server.js', 'info');
+                
+                btn.innerHTML = '🚀 启动展开服务';
+                btn.disabled = false;
+                
+            } catch (error) {
+                showAlert('启动服务失败: ' + error.message, 'error');
+                btn.innerHTML = '🚀 启动展开服务';
+                btn.disabled = false;
+            }
+        }
+
+        async function expandShortLink(shortUrl) {
+            showStatus('正在展开短链接...', 'loading');
+            
+            try {
+                // 使用 fetch 跟随重定向，从 response.url 获取最终地址
+                const response = await fetch(shortUrl, {
+                    method: 'GET',
+                    redirect: 'follow',
+                    mode: 'cors'
+                });
+                
+                const finalUrl = response.url;
+                
+                // 检查是否成功获取到真实链接
+                if (finalUrl && finalUrl.includes('jd.com') && finalUrl.includes('cartShare')) {
+                    clearStatus();
+                    return finalUrl;
+                }
+                
+                // 如果 URL 不对，可能是京东的安全重定向
+                // 此时 finalUrl 应该已经包含了目标地址
+                if (finalUrl && finalUrl.includes('jd.com')) {
+                    clearStatus();
+                    return finalUrl;
+                }
+                
+                throw new Error('无法获取展开后的链接');
+                
+            } catch (error) {
+                console.error('展开失败:', error);
+                
+                // 尝试使用图片加载的跨域策略
+                try {
+                    const img = document.createElement('img');
+                    img.crossOrigin = 'anonymous';
+                    
+                    return new Promise((resolve, reject) => {
+                        img.onload = () => {
+                            // 图片无法获取实际链接，只能通过其他方式
+                            showAlert('短链接已展开，请在浏览器中复制完整链接', 'info');
+                            showStatus(`<a href="${shortUrl}" target="_blank" style="color: #667eea;">点击打开短链接并复制地址栏的完整链接</a>`, 'info');
+                            resolve(null);
+                        };
+                        img.onerror = () => {
+                            showAlert('短链接展开失败，请手动操作', 'error');
+                            resolve(null);
+                        };
+                        img.src = shortUrl;
+                        
+                        // 3秒超时
+                        setTimeout(() => {
+                            showStatus(`<a href="${shortUrl}" target="_blank">点击打开短链接</a>`, 'info');
+                            resolve(null);
+                        }, 3000);
+                    });
+                } catch (e2) {
+                    showAlert('短链接展开失败，请手动复制完整链接', 'error');
+                    showStatus(`<a href="${shortUrl}" target="_blank">点击打开短链接</a>`, 'info');
+                    return null;
+                }
+            }
+        }
+
+        function showAlert(message, type = 'success') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                alertBox.innerHTML = '';
+            }, 5000);
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusArea = document.getElementById('statusArea');
+            statusArea.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+
+        function clearStatus() {
+            document.getElementById('statusArea').innerHTML = '';
+        }
+
+        async function parseLink() {
+            const link = document.getElementById('shareLink').value.trim();
+            
+            if (!link) {
+                showAlert('请先粘贴京东购物车分享链接！', 'error');
+                return;
+            }
+
+            // 检查是否是短链接
+            if (link.includes('3.cn')) {
+                showStatus('正在展开短链接...', 'loading');
+                
+                const expandedUrl = await expandShortLink(link);
+                
+                if (expandedUrl) {
+                    document.getElementById('expandedUrlBox').style.display = 'block';
+                    document.getElementById('expandedUrl').textContent = expandedUrl;
+                    document.getElementById('shareLink').value = expandedUrl;
+                    showAlert('短链接展开成功！', 'success');
+                } else {
+                    // 尝试使用浏览器直接跟随重定向
+                    try {
+                        const response = await fetch(link, {
+                            method: 'GET',
+                            redirect: 'follow'
+                        });
+                        const finalUrl = response.url;
+                        if (finalUrl && finalUrl.includes('jd.com')) {
+                            document.getElementById('expandedUrlBox').style.display = 'block';
+                            document.getElementById('expandedUrl').textContent = finalUrl;
+                            document.getElementById('shareLink').value = finalUrl;
+                            showAlert('短链接展开成功！', 'success');
+                            clearStatus();
+                        } else {
+                            return;
+                        }
+                    } catch (e) {
+                        console.error('fetch redirect failed:', e);
+                        return;
+                    }
+                }
+            }
+
+            // 解析完整链接
+            try {
+                clearStatus();
+                const url = new URL(document.getElementById('shareLink').value);
+                const params = {};
+                url.searchParams.forEach((value, key) => {
+                    params[key] = value;
+                });
+
+                if (!params.p) {
+                    showAlert('链接格式错误：未找到商品参数（p参数）', 'error');
+                    return;
+                }
+
+                // 解析 p 参数
+                const pValue = params.p;
+                const [productsPart, signature] = pValue.split('@@');
+
+                if (!productsPart) {
+                    showAlert('链接格式错误：商品列表为空', 'error');
+                    return;
+                }
+
+                const productPairs = productsPart.split(',');
+                const products = productPairs.map(pair => {
+                    const [id, quantity] = pair.split(':');
+                    return {
+                        id: id || '',
+                        quantity: quantity || '1'
+                    };
+                });
+
+                currentData = {
+                    baseUrl: `${url.origin}${url.pathname}`,
+                    params: params,
+                    products: products,
+                    signature: signature || ''
+                };
+
+                renderProductList();
+                document.getElementById('editorSection').style.display = 'block';
+                document.getElementById('resultSection').style.display = 'none';
+                showAlert(`成功解析！找到 ${products.length} 个商品`, 'success');
+
+            } catch (error) {
+                showAlert('链接格式错误，请检查后重试！', 'error');
+                console.error(error);
+            }
+        }
+
+        function renderProductList() {
+            const productList = document.getElementById('productList');
+            
+            if (currentData.products.length === 0) {
+                productList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <p>暂无商品，点击"添加商品"开始</p>
+                    </div>
+                `;
+                return;
+            }
+
+            productList.innerHTML = currentData.products.map((product, index) => `
+                <div class="product-item">
+                    <div class="product-index">${index + 1}</div>
+                    <div class="product-inputs">
+                        <input 
+                            type="text" 
+                            class="input-product-id" 
+                            placeholder="商品ID"
+                            value="${product.id}"
+                            onchange="updateProduct(${index}, 'id', this.value)"
+                        >
+                        <span>×</span>
+                        <input 
+                            type="number" 
+                            class="input-quantity" 
+                            placeholder="数量"
+                            value="${product.quantity}"
+                            onchange="updateProduct(${index}, 'quantity', this.value)"
+                            min="1"
+                        >
+                    </div>
+                    <button class="btn-remove" onclick="removeProduct(${index})" title="删除此商品">×</button>
+                </div>
+            `).join('');
+        }
+
+        function updateProduct(index, field, value) {
+            if (field === 'id') {
+                currentData.products[index].id = value;
+            } else if (field === 'quantity') {
+                currentData.products[index].quantity = value || '1';
+            }
+        }
+
+        function addProduct() {
+            currentData.products.push({
+                id: '',
+                quantity: '1'
+            });
+            renderProductList();
+        }
+
+        function removeProduct(index) {
+            currentData.products.splice(index, 1);
+            renderProductList();
+        }
+
+        function generateLink() {
+            // 验证商品ID
+            const invalidProducts = currentData.products.filter(p => !p.id.trim());
+            if (invalidProducts.length > 0) {
+                showAlert('请填写所有商品的ID！', 'error');
+                return;
+            }
+
+            // 构建新的 p 参数
+            const productsPart = currentData.products
+                .map(p => `${p.id.trim()}:${p.quantity}`)
+                .join(',');
+            
+            const newPValue = currentData.signature 
+                ? `${productsPart}@@${currentData.signature}`
+                : productsPart;
+
+            // 构建新链接
+            const newParams = new URLSearchParams(currentData.params);
+            newParams.set('p', newPValue);
+            
+            const newLink = `${currentData.baseUrl}?${newParams.toString()}`;
+            
+            document.getElementById('resultLink').textContent = newLink;
+            document.getElementById('resultSection').style.display = 'block';
+            showAlert('新链接生成成功！', 'success');
+            
+            // 滚动到结果区域
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyLink() {
+            const link = document.getElementById('resultLink').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = '✅ 已复制';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = '📋 复制链接';
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                showAlert('复制失败，请手动复制链接', 'error');
+            });
+        }
+
+        function clearAll() {
+            document.getElementById('shareLink').value = '';
+            document.getElementById('expandedUrlBox').style.display = 'none';
+            document.getElementById('editorSection').style.display = 'none';
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('alertBox').innerHTML = '';
+            clearStatus();
+            currentData = {
+                baseUrl: '',
+                params: {},
+                products: [],
+                signature: ''
+            };
+        }
+
+        // 页面加载时检查服务状态
+        window.addEventListener('load', async () => {
+            // 服务已内置到页面中，无需外部服务
+            updateServerStatus(true);
+        });
+    </script>
+</body>
+</html>
